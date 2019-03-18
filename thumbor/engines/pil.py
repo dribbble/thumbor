@@ -200,6 +200,7 @@ class Engine(BaseEngine):
         options = {
             'quality': quality
         }
+        logger.debug('ext is %s.' % ext)
         if ext == '.jpg' or ext == '.jpeg':
             options['optimize'] = True
             if self.context.config.PROGRESSIVE_JPEG:
@@ -244,7 +245,12 @@ class Engine(BaseEngine):
                 options['exif'] = self.exif
 
         try:
+            logger.debug("[PILEngine] mode is %s" % self.image.mode)
             if ext == '.webp':
+                if options['quality'] == 100:
+                    logger.debug("[PILEngine] lossless")
+                    options['lossless'] = True
+                    options.pop('quality')
                 if self.image.mode not in ['RGB', 'RGBA']:
                     if self.image.mode == 'P':
                         mode = 'RGBA'
