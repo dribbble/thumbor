@@ -48,6 +48,7 @@ class Engine(BaseEngine):
 
     def create_image(self, buffer):
         blob = Blob(buffer)
+        self.original = blob
         img = Image(blob)
         return img
 
@@ -102,7 +103,13 @@ class Engine(BaseEngine):
         self.image.quality(quality)
         self.image.write(img_buffer)
 
-        return img_buffer.data
+        logger.debug('Original length: %s', self.original.length())
+        logger.debug('Compressed length: %s', img_buffer.length())
+
+        if img_buffer.length() > self.original.length()
+            return self.original.data
+        else:
+            return img_buffer.data
 
     @deprecated("Use image_data_as_rgb instead.")
     def get_image_data(self):

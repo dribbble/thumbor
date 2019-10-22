@@ -66,6 +66,7 @@ class Engine(BaseEngine):
 
     def create_image(self, buffer):
         try:
+            self.original = BytesIO(buffer).getvalue()
             img = Image.open(BytesIO(buffer))
         except DecompressionBombExceptions as e:
             logger.warning("[PILEngine] create_image failed: {0}".format(e))
@@ -197,6 +198,9 @@ class Engine(BaseEngine):
 
         ext = requested_extension or self.get_default_extension()
 
+        if self.image.mode == 'CMYK' and self.icc_profile is not None:
+            ext = '.jpg'
+
         options = {
             'quality': quality
         }
@@ -210,7 +214,7 @@ class Engine(BaseEngine):
                 # the value of that setting.
                 options['progressive'] = True
 
-            if self.image.mode != 'RGB':
+            if self.image.mode not in ['RGB', 'CMYK']:
                 self.image = self.image.convert('RGB')
             else:
                 subsampling_config = self.context.config.PILLOW_JPEG_SUBSAMPLING
@@ -246,6 +250,7 @@ class Engine(BaseEngine):
 
         try:
             logger.debug("[PILEngine] mode is %s" % self.image.mode)
+
             if ext == '.webp':
                 if options['quality'] == 100:
                     logger.debug("[PILEngine] lossless")
@@ -269,6 +274,13 @@ class Engine(BaseEngine):
 
         results = img_buffer.getvalue()
         img_buffer.close()
+
+        logger.debug('Original length: %s', len(self.original))
+        logger.debug('Compressed length: %s', len(results))
+
+        if len(results) >= len(self.original):
+            return self.original
+
         self.extension = ext
         return results
 
