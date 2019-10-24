@@ -67,13 +67,17 @@ class Optimizer(BaseOptimizer):
             '-qmax',
             '42',
             '-crf',
-            '23',
+            '5',
+            '-preset',
+            'medium',
             '-maxrate',
             '500k',
             output_file,
             '-loglevel',
             'error'
         ]
+
+        logger.debug(command)
 
         with open(os.devnull) as null:
             subprocess.call(command, stdin=null)
