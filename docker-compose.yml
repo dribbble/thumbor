@@ -1,0 +1,58 @@
+version: '3'
+services:
+  thumbor:
+    image: '893671114314.dkr.ecr.us-east-1.amazonaws.com/thumbor:0.1'
+    environment:
+      # VIRTUAL_HOST is picked up by nginx-proxy. Here it's set for localhost
+      # but you usually need to point it to your domain, e.g. thumbor.example.com
+      - VIRTUAL_HOST=localhost
+      # THUMBOR_NUM_PROCESSES control how many processes run inside the container
+      # Normally this is set in connection with the number of CPU cores
+      # Note however that you can also use the docker-compose scale option to dynamically
+      # scale your thumbor instances
+      - THUMBOR_NUM_PROCESSES=1
+      # this would allow CORS from any origin (you can restrict to specific origins if you want)
+      - CORS_ALLOW_ORIGIN=*
+      # returns a webp image if browser Accept headers match
+      - AUTO_WEBP=True
+      - QUALITY=95
+      - WEBP_QUALITY=100
+      # - ENGINE=graphicsmagick_engine
+      - LOG_LEVEL=debug
+      - THUMBOR_NUM_PROCESSES=2
+      - STORAGE=thumbor.storages.no_storage
+      - OPTIMIZERS=['thumbor.optimizers.jpegtran','thumbor.optimizers.gifv']
+      - SERVE_ORIGINAL_IF_SMALLER=True
+
+      - TC_AWS_REGION=us-east-1
+
+
+      # - STORAGE=tc_aws.storages.s3_storage
+      # - STORAGE_EXPIRATION_SECONDS=999999
+      # - TC_AWS_STORAGE_BUCKET=dribbble-staging
+      # - TC_AWS_STORAGE_ROOT_PATH=/optimized-image-cache/storage
+      # - TC_AWS_STORAGE_SSE=False
+      # - TC_AWS_STORAGE_RRS=False
+
+      # - RESULT_STORAGE=tc_aws.result_storages.s3_storage
+      # - RESULT_STORAGE_EXPIRATION_SECONDS=999999
+      # - TC_AWS_RESULT_STORAGE_BUCKET=dribbble-staging
+      # - TC_AWS_RESULT_STORAGE_ROOT_PATH=/optimized-image-cache/result_storage
+      # - RESULT_STORAGE_STORES_UNSAFE=True
+      # - RESULT_STORAGE_FILE_STORAGE_ROOT_PATH=/
+
+      # - TC_AWS_MAX_RETRY=1
+      # - TC_AWS_STORE_METADATA=True
+      # - TC_AWS_RANDOMIZE_KEYS=False
+      # - TC_AWS_ROOT_IMAGE_NAME='root_image'
+      # Basic thumbor setup to cache both original images and results (after manipulation)
+      # nginx-proxy would detect if there's a cached version and serve it for you automatically
+      # (this greatly speeds up and saves on CPU)
+    restart: always
+    networks:
+      - app
+    ports:
+      - '8080:80'
+networks:
+  app:
+    driver: bridge

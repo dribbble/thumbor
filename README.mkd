@@ -1,3 +1,6 @@
+# Building Docker Image
+See the [build doc](https://github.com/dribbble/thumbor/blob/build/build.md) for information on how to build the docker image.
+
 # Survey
 
 If you use thumbor, please take 1 minute and answer [this survey](http://t.co/qPBLXJX0mi)? It's only 2 questions and one is multiple choice!!!
