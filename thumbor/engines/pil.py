@@ -197,6 +197,10 @@ class Engine(BaseEngine):
 
         ext = requested_extension or self.get_default_extension()
 
+        # dribbble - fix discoloration issue with CMYK jpegs with an icc_profile
+        if self.image.mode == 'CMYK' and self.icc_profile is not None:
+            ext = '.jpg'
+
         options = {
             'quality': quality
         }
@@ -209,7 +213,7 @@ class Engine(BaseEngine):
                 # the value of that setting.
                 options['progressive'] = True
 
-            if self.image.mode != 'RGB':
+            if self.image.mode not in ['RGB', 'CMYK']:
                 self.image = self.image.convert('RGB')
             else:
                 subsampling_config = self.context.config.PILLOW_JPEG_SUBSAMPLING
